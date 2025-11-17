@@ -1,6 +1,3 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/controls/OrbitControls.js';
-
 const TAGS = {
   'zastanawia się': 'think',
   'śmieje się': 'laugh',
@@ -168,7 +165,7 @@ class SceneManager {
     container.appendChild(renderer.domElement);
     this.renderer = renderer;
 
-    this.controls = new OrbitControls(this.camera, renderer.domElement);
+    this.controls = new THREE.OrbitControls(this.camera, renderer.domElement);
     this.controls.enablePan = false;
     this.controls.enableZoom = false;
     this.controls.target.set(0, 4.5, 0);
