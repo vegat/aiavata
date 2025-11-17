@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avatar 3D z TTS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="viewer">
+      <div id="canvas-container"></div>
+    </section>
+    <section class="controls">
+      <h1>Avatar 3D z TTS</h1>
+      <p class="hint">Wpisz tekst poniżej. Dostępne tagi animacji: <code>[zastanawia się]</code>, <code>[śmieje się]</code>, <code>[grozi palcem]</code>.</p>
+      <div class="input-row">
+        <textarea id="speech-text" rows="3" placeholder="Cześć! [zastanawia się] O czym powinniśmy porozmawiać?"></textarea>
+        <button id="speak-btn" type="button">Odtwórz</button>
+      </div>
+      <label class="option"><input type="checkbox" id="loop-idle" checked> Animacja oczekiwania</label>
+    </section>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
