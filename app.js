@@ -150,6 +150,81 @@ class Character {
   }
 }
 
+class SimpleOrbitControls {
+  constructor(camera, domElement) {
+    this.camera = camera;
+    this.domElement = domElement;
+    this.target = new THREE.Vector3(0, 0, 0);
+    this.spherical = new THREE.Spherical();
+    this.rotateSpeed = 1.05;
+    this.minPolarAngle = 0.2;
+    this.maxPolarAngle = Math.PI - 0.2;
+
+    this._state = 'none';
+    this._pointerStart = new THREE.Vector2();
+
+    this.domElement.addEventListener('pointerdown', this.onPointerDown);
+    window.addEventListener('pointerup', this.onPointerUp);
+    window.addEventListener('pointermove', this.onPointerMove);
+
+    this.updateSphericalFromCamera();
+    this.updateCamera();
+  }
+
+  dispose() {
+    this.domElement.removeEventListener('pointerdown', this.onPointerDown);
+    window.removeEventListener('pointerup', this.onPointerUp);
+    window.removeEventListener('pointermove', this.onPointerMove);
+  }
+
+  setTarget(x, y, z) {
+    this.target.set(x, y, z);
+    this.updateSphericalFromCamera();
+    this.updateCamera();
+  }
+
+  onPointerDown = (event) => {
+    this._state = 'rotate';
+    this._pointerStart.set(event.clientX, event.clientY);
+    this.domElement.setPointerCapture(event.pointerId);
+  };
+
+  onPointerUp = (event) => {
+    this._state = 'none';
+    if (this.domElement.hasPointerCapture(event.pointerId)) {
+      this.domElement.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  onPointerMove = (event) => {
+    if (this._state !== 'rotate') return;
+    const deltaX = event.clientX - this._pointerStart.x;
+    const deltaY = event.clientY - this._pointerStart.y;
+
+    const height = Math.max(this.domElement.clientHeight, 1);
+    const rotX = (2 * Math.PI * deltaX) / height * this.rotateSpeed;
+    const rotY = (Math.PI * deltaY) / height * this.rotateSpeed;
+
+    this.spherical.theta -= rotX;
+    this.spherical.phi = THREE.MathUtils.clamp(this.spherical.phi - rotY, this.minPolarAngle, this.maxPolarAngle);
+    this._pointerStart.set(event.clientX, event.clientY);
+    this.updateCamera();
+  };
+
+  updateSphericalFromCamera() {
+    const offset = new THREE.Vector3().subVectors(this.camera.position, this.target);
+    this.spherical.setFromVector3(offset);
+  }
+
+  updateCamera() {
+    const offset = new THREE.Vector3().setFromSpherical(this.spherical);
+    this.camera.position.copy(this.target).add(offset);
+    this.camera.lookAt(this.target);
+  }
+
+  update() {}
+}
+
 class SceneManager {
   constructor() {
     this.scene = new THREE.Scene();
@@ -165,10 +240,8 @@ class SceneManager {
     container.appendChild(renderer.domElement);
     this.renderer = renderer;
 
-    this.controls = new THREE.OrbitControls(this.camera, renderer.domElement);
-    this.controls.enablePan = false;
-    this.controls.enableZoom = false;
-    this.controls.target.set(0, 4.5, 0);
+    this.controls = new SimpleOrbitControls(this.camera, renderer.domElement);
+    this.controls.setTarget(0, 4.5, 0);
 
     const ambient = new THREE.AmbientLight(0xffffff, 0.7);
     const dir = new THREE.DirectionalLight(0xffffff, 0.9);
